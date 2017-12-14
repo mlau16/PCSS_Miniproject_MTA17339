@@ -5,7 +5,7 @@ To use this software do following:
 
 Download or clone both folders:
 
-Client: ComplexSoftwareSystems_Miniproject_Clint_MTA17339
+Client: ComplexSoftwareSystems_Miniproject_Clint_MTA17339 <br />
 Server: ComplexSoftwareSystems_Miniproject_MTA17339
 
 Run the server first, then run as many clients as needed.
