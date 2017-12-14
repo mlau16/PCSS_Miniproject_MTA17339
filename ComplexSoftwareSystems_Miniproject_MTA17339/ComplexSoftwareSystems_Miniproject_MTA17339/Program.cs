@@ -443,6 +443,5 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
             this.type = type;
         }
     }
-
 }
 
