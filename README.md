@@ -20,3 +20,11 @@ and finally serialize to a json string and overwrite the json string to the file
 It will just make a List of the single object, serialize it and write it to a file.
 
 To print this database write print and press enter in the server console. 
+
+Known bugs: <br />
+
+Race condition if two clients add an entry to the server at the same time when read/ writing the file. <br />
+Data loss on some of the last entires when they are sent to the server. <br />
+
+
+
