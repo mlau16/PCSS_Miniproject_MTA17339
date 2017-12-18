@@ -9,18 +9,21 @@ using System.Threading.Tasks;
 
 namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
 {
+    // Client class
     class Client
     {
         static void Main(string[] args)
-        {
+        {   
+            // Tries to create reader, writer and client
             try
             {
+                // Tries to connect to server, if not throws exception
                 TcpClient tcpClient = new TcpClient("127.0.0.1", 8989);
                 StreamReader reader = new StreamReader(tcpClient.GetStream());
                 StreamWriter writer = new StreamWriter(tcpClient.GetStream());
 
                 string s = "";
-
+                // If s is not equal to "quit" it will prompt for you to enter data
                 while (!s.Equals("Quit"))
                 {
                     Console.WriteLine("Enter an animal to send to the Animal Database coorporation inc");
@@ -43,15 +46,15 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
                 throw;
             }
         }
-
+        // This function will prompt for which animal you would like to log
         private static string GetUserDefinedAnimal()
         {
             Console.WriteLine("What type of animal would you like to log? \nPress 1 for Biped, Press 2 for Quadroped, press 3 for Auquatic, press 4 for Bird");
-
+        
             string type = Console.ReadLine();
             string jsonString = "";
             Animal animal = null;
-
+            // Switch statement check which animal is logged, and then proceeds to ask for information about the animal. It then creates an object.
             switch (type)
             { 
                 case "1":
@@ -187,7 +190,8 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
                 default:
                     break;
             }
-
+            
+            // It will then serialize the object to a jsonString
             jsonString = JsonConvert.SerializeObject(animal);
 
             if(jsonString != null)
@@ -197,11 +201,11 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
 
             return jsonString;
         }
-
+        // Common information about a base Animal function. 
         private static Animal GetBaseAnimal(string type)
         {
             string animalType = "";
-
+            // Read which animal type is entered
             switch (type)
             {
                 case "1":
@@ -220,7 +224,7 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
                     animalType = "Animal";
                     break;
             }
-
+            // Prompt for different information about the animal. 
             Console.WriteLine("Enter a name for the " + animalType + " please");
             string tempName = Console.ReadLine();
             float tempWeight = ErrorHandleFloat(
@@ -243,7 +247,7 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
             bool tempHerbivore = ErrorHandleBool(
                 "Is the " + animalType + " a herbivore? Enter 1 if yes, 2 if no", 
                 animalType);
-
+            // Creates the animal
             Animal tempAnimal = new Animal(
                 tempName,
                 tempWeight,
@@ -253,26 +257,30 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
                 tempStrength,
                 tempCarnivore,
                 tempHerbivore);
-
+            // Returns the animal
             return tempAnimal;
         }
 
-        // recursive error handling
+        // Recursive error handling
         private static float ErrorHandleFloat(string consolePrompt, string animalType)
         {
             float tempWeight;
+            // It writes the console promts, and saves it in a string.
             Console.WriteLine(consolePrompt);
             string stringWeight = Console.ReadLine();
-
+            
+            // If it can parse the string to a float recursion. 
             if (!float.TryParse(stringWeight, out tempWeight))
             {
                 Console.WriteLine("Error! Try Again");
+                // Calls itself
                 tempWeight = ErrorHandleFloat(consolePrompt, animalType);
             }
 
             return tempWeight;
         }
-
+        
+        
         private static bool ErrorHandleBool(string cosolePrompt, string animalType)
         {
             bool tempBool;
@@ -298,9 +306,9 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
             return tempBool;
         }
     }
-
+    // Animal enum
     public enum AnimalType { Biped, Quadroped, Auqatic, Bird }
-
+    // base Animal Class
     class Animal
     {
         public string name { get; set; }
