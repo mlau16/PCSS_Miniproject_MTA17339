@@ -280,14 +280,14 @@ namespace ComplexSoftwareSystems_Miniproject_Clint_MTA17339
             return tempWeight;
         }
         
-        
+        // Recursive error handling 
         private static bool ErrorHandleBool(string cosolePrompt, string animalType)
         {
             bool tempBool;
 
             Console.WriteLine(cosolePrompt);
             string tempString = Console.ReadLine();
-
+            // Switch statement that decides which boolean to return. if default then the function calls itself.
             switch (tempString)
             {
                 case "1":
