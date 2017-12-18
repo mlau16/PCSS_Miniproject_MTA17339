@@ -12,12 +12,13 @@ using System.Threading.Tasks;
 
 namespace ComplexSoftwareSystems_Miniproject_MTA17339
 {
+    // Server Class
     class Server
     {
         static void Main(string[] args)
         {
             TcpListener tcplistener = null;
-
+            // Try to start the server, and wait for client to connect. Will throw exception if fails
             try
             {
                 tcplistener = new TcpListener(IPAddress.Parse("127.0.0.1"), 8989);
@@ -31,6 +32,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                     Console.WriteLine("Waiting for Animal connossieurs to connect!");
                     TcpClient tcpClient = tcplistener.AcceptTcpClient();
                     Console.WriteLine("An Animal connossieur has joined us!");
+                    // Start thread for each client connected, with function ProcessClients
                     Thread t = new Thread(ProcessClients);
                     t.Start(tcpClient);
                 }
@@ -48,23 +50,26 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                 }
             }
         }
-
+        
+        // Function that process the clients.
         private static void ProcessClients(object arg)
         {
             TcpClient client = (TcpClient)arg;
-
+            // Try to create a reader and a writer for the stream
             try
             {
                 StreamReader reader = new StreamReader(client.GetStream());
                 StreamWriter writer = new StreamWriter(client.GetStream());
                 string s = "";
-
+                // while the string s is not equal to "Quit" or null, the server handles the string from the stream
                 while (!(s = reader.ReadLine()).Equals("Quit") || (s == null))
                 {
                     HandleJsonMessage(s);
                     writer.WriteLine("From Server: Thank you for the contribution to the Animal Database");
                     writer.Flush();
                 }
+                
+                // Closes the different objects
                 reader.Close();
                 writer.Close();
                 client.Close();
@@ -75,6 +80,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                 Console.WriteLine("Problem with the Tread, Closing. Bye!");
                 throw;
             }
+            // Close client after exception
             finally
             {
                 if (client != null)
@@ -83,7 +89,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                 }
             }
         }
-
+        // Function which Prints from a database file (Json file)
         private static void CommandPrintDatabase()
         {
             while (true)
@@ -93,21 +99,25 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                 if ((compare = Console.ReadLine()).Equals("print"))
                 {
                     Console.WriteLine("Known Command: print");
-
+                    // Tries to load database file, and if the file exists it will continue
                     if (File.Exists(".\\Animal_Database.json"))
                     {
+                        // Write that it loads file
                         Console.WriteLine("Loading File");
-
+                        // Reads all the text from the file
                         string jsonString = File.ReadAllText(".\\Animal_Database.json");
+                        //Convert text to JsonArray
                         var jArr = JArray.Parse(jsonString);
-
+                        // Loops through Jarray elements
                         for (int i = 0; i < jArr.Count; i++)
                         {
+                            // Reads the type of each Json element
                             string strType = (string)jArr[i]["type"];
                             AnimalType type;
-
+                            // Check if type can be parsed to an enum
                             if (Enum.TryParse(strType, out type))
                             {
+                                // Switch statement for each type, which creates the object and then prints it.
                                 switch (type)
                                 {
                                     case AnimalType.Biped:
@@ -152,18 +162,23 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                 }
             }
         }
-
+        // Handles Json message
         private static void HandleJsonMessage(string message)
         {
+            // Checks if its the string is a valid Json string. If it is valid, it can be parsed to a Json Object
             if (IsValidJson(message))
             {
+               
                 var jObject = JObject.Parse(message);
+                // Parsing to Json Object
                 string strType = (string)jObject["type"];
                 AnimalType type;
                 Animal animal = null;
-
+                
+                // Try to parse the type from string to enum
                 if (Enum.TryParse(strType, out type))
                 {
+                    // Create and print object based on the type
                     switch (type)
                     {
                         case AnimalType.Biped:
@@ -207,17 +222,22 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                     {
                         // concatinate json string to existing file
                         string existingDatabase = File.ReadAllText(".\\Animal_Database.json");
-
+                        // Deserialize json file to list of animals
                         List<Animal> existingAnimals = JsonConvert.DeserializeObject<List<Animal>>(existingDatabase);
+                        // Create new animal based on the message json string
                         Animal newAnimal = JsonConvert.DeserializeObject<Animal>(message);
+                        // Add animal to existingAnimals list
                         existingAnimals.Add(newAnimal);
 
+                        // Serialize lists to string
                         string animalDatabase = JsonConvert.SerializeObject(existingAnimals);
+                        // Write string to file
                         File.WriteAllText(".\\Animal_Database.json", animalDatabase);
                         Console.WriteLine("Saved Animal database");
                     }
                     else
                     {
+                        // Check if its the first animal created. 
                         Animal firstAnimal = JsonConvert.DeserializeObject<Animal>(message);
                         List<Animal> firstAnimalList = new List<Animal>();
                         firstAnimalList.Add(firstAnimal);
@@ -232,10 +252,14 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
 
         private static bool IsValidJson(string strInput)
         {
+            // Removes whitespace in front of string, or in the back
             strInput = strInput.Trim();
+            
+            // Looks for brackets
             if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
                 (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
             {
+                // Try to parse json string, which throws exception if it cant. 
                 try
                 {
                     var obj = JToken.Parse(strInput);
@@ -258,7 +282,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                 return false;
             }
         }
-
+        // Different print formatting for each Biped
         private static void PrintBiped(Biped biped)
         {
             Console.WriteLine("Printing Biped data: \n" +
@@ -272,7 +296,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                                 "Herbivore: " + biped.herbivore + "\n" +
                                 "Intelligence: " + biped.intelligence + "\n");
         }
-
+        // Different print formatting for each Quadroped
         private static void PrintQuadroped(Quadroped quadroped)
         {
             Console.WriteLine("Printing Quadroped data: \n" +
@@ -286,7 +310,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                                 "Herbivore: " + quadroped.herbivore + "\n" +
                                 "Running Speed: " + quadroped.runningSpeed + "\n");
         }
-
+        // Different print formatting for each Auqatic
         private static void PrintAuqatic(Auqatic auqatic)
         {
             Console.WriteLine("Printing Auqatic data: \n" +
@@ -300,7 +324,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
                                "Herbivore: " + auqatic.herbivore + "\n" +
                                "Swimming speed: " + auqatic.swimSpeed + "\n");
         }
-
+        // Different print formatting for each Bird
         private static void PrintBird(Bird bird)
         {
             Console.WriteLine("Printing Bird data: \n" +
@@ -317,9 +341,10 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
         }
     }
 
-
+    // Enum for each animal type
     public enum AnimalType { Biped, Quadroped, Auqatic, Bird }
 
+    // Class for animal
     class Animal
     {
         public string name { get; set; }
@@ -352,7 +377,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
             this.herbivore = herbivore;
         }
     }
-
+    // Subclass from animal for Biped
     class Biped : Animal
     {
         public float intelligence { get; set; }
@@ -374,7 +399,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
             this.type = type;
         }
     }
-
+    // Subclass from animal for Quadroped
     class Quadroped : Animal
     {
         public float runningSpeed { get; set; }
@@ -396,7 +421,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
             this.type = type;
         }
     }
-
+      // Subclass from animal for Auqatic
     class Auqatic : Animal
     {
         public float swimSpeed { get; set; }
@@ -418,7 +443,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
             this.type = type;
         }
     }
-
+      // Subclass from animal for Bird
     class Bird : Animal
     {
         public float wingSpan { get; set; }
