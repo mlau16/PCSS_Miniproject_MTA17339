@@ -165,7 +165,7 @@ namespace ComplexSoftwareSystems_Miniproject_MTA17339
         // Handles Json message
         private static void HandleJsonMessage(string message)
         {
-            // Checks if its the string is a valid Json string. If it is valid, it can be parsed to a Json Object
+            // Checks if the string is a valid Json string. If it is valid, it can be parsed to a Json Object
             if (IsValidJson(message))
             {
                
